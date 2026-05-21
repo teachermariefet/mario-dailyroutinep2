@@ -204,6 +204,7 @@
         let timeLeft = 75;
         let gameActive = false;
         let currentWordObj = null;
+        let lastWordObj = null; // Track the previous word object
         let timerInterval;
         let currentAudio = null;
 
@@ -259,6 +260,7 @@
             scores = { mario: 0, luigi: 0 };
             timeLeft = 75;
             gameActive = true;
+            lastWordObj = null; // Clear history on game start
             updateScoreUI();
             showScreen('game-screen');
             nextRound();
@@ -271,7 +273,16 @@
 
         function nextRound() {
             if(!gameActive) return;
-            currentWordObj = gameData[Math.floor(Math.random() * gameData.length)];
+            
+            // Filter out the last word if there are multiple options available
+            let availableWords = gameData;
+            if (lastWordObj && gameData.length > 1) {
+                availableWords = gameData.filter(item => item.word !== lastWordObj.word);
+            }
+
+            // Select a random word from the filtered pool
+            currentWordObj = availableWords[Math.floor(Math.random() * availableWords.length)];
+            lastWordObj = currentWordObj; // Save the newly selected word as the historical reference
             
             // Only use the Chinese Traditional value in the mission screen box
             const display = currentWordObj.zh || currentWordObj.word;
